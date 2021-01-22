@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TO DO List</title>
+	<style type="text/css">
+	/* Include the padding and border in an element's total width and height */
+	* {
+	  box-sizing: border-box;
+	}
+	
+	/* Remove margins and padding from the list */
+	ul {
+	  margin: 0;
+	  padding: 0;
+	}
+	
+	/* Style the list items */
+	ul li {
+	  cursor: pointer;
+	  position: relative;
+	  padding: 12px 8px 12px 40px;
+	  background: #eee;
+	  font-size: 18px;
+	  transition: 0.2s;
+	
+	  /* make the list items unselectable */
+	  -webkit-user-select: none;
+	  -moz-user-select: none;
+	  -ms-user-select: none;
+	  user-select: none;
+	}
+
+	ul #editdatainput {
+	  cursor: pointer;
+	  position: relative;
+	  padding: 10px 6px 10px 35px;
+	  background: #ddd;
+	  font-size: 18px;
+	  transition: 0.2s;
+	  width: 100%;
+	}
+	
+	/* Set all odd list items to a different color (zebra-stripes) */
+	ul li:nth-child(odd) {
+	  background: #f9f9f9;
+	}
+	
+	/* Darker background-color on hover */
+	ul li:hover {
+	  background: #ddd;
+	}
+	
+	/* When clicked on, add a background color and strike out text */
+	ul li.checked {
+	  background: #888;
+	  color: #fff;
+	  text-decoration: line-through;
+	}
+	
+	/* Style the close button */
+	.close {
+	  position: absolute;
+	  right: 0;
+	  top: 0;
+	  padding: 12px 16px 12px 16px;
+	}
+	.close:hover {
+	  background-color: #f44336;
+	  color: white;
+	}
+	
+	/* Style the header */
+	.header {
+	  background-color: #f44336;
+	  padding: 30px 40px;
+	  color: white;
+	  text-align: center;
+	}
+	
+	/* Clear floats after the header */
+	.header:after {
+	  content: "";
+	  display: table;
+	  clear: both;
+	}
+	
+	/* Style the input */
+	#myInput {
+	  margin: 0;
+	  border: none;
+	  border-radius: 0;
+	  width: 75%;
+	  padding: 10px;
+	  float: left;
+	  font-size: 16px;
+	}
+	
+	/* Style the "Add" button */
+	.addBtn {
+	  padding: 10px;
+	  width: 25%;
+	  background: #d9d9d9;
+	  color: #555;
+	  float: left;
+	  text-align: center;
+	  font-size: 16px;
+	  cursor: pointer;
+	  transition: 0.3s;
+	  border-radius: 0;
+	}
+	
+	.addBtn:hover {
+	  background-color: #bbb;
+	}
+
+	.now{
+		border: #888 2px solid;
+		background-color: #000; 
+		color: #fff;
+	}
+	.allclear:hover {
+		text-decoration: underline;
+	}
+	#error{
+		color: red;
+		text-align: center;
+		font-weight: bold;
+		font-size: 20px;
+	}
+	</style>
+</head>
+
+<body id="todobody">
+<div id="myDIV" class="header">
+  <h2>My To Do List</h2>
+  <input type="text" id="myInput" placeholder="Enter Your Work Title...">
+  <span onclick="newElement()" class="addBtn">Add</span>
+</div>
+<p id="error"></p>
+<br><br>
+<ul id="myUL">
+  <b>To Do List Topic</b><br><br>
+</ul><br><br><br>
+<div id="data">
+	<li> Left Task : <span id="total">0</span></li>
+</div><br><br>
+<div id="button">
+	<div style="float: left;">
+		<button id="all" class="now" onclick="HideShow()">All</button>  <button id="active" onclick="active()">Active</button> <button id="complete" onclick="complete()">Complete</button>
+	</div>
+	<div class="allclear" onclick="clearAll()" style="float: right; cursor: pointer;">
+		Clear Completed
+	</div>
+</div>
+<script type="text/javascript">
+	var item=[];
+	HideShow();
+
+	function increment(){
+		var total=document.getElementById('total').innerText;
+		total = Number.parseInt(total) + 1;
+		document.getElementById('total').innerText = total;	
+	}
+	function decrement(){
+		var total=document.getElementById('total').innerText;
+		total = Number.parseInt(total) - 1;
+		document.getElementById('total').innerText = total;	
+	}
+
+	function HideShow(){
+		if(item.length==0)
+		{   
+			var a=document.getElementById("data");
+			a.style.display ="none";
+			var b=document.getElementById("button");
+			b.style.display ="none";
+			var c=document.getElementById("myUL");
+			c.style.display ="none";
+		}
+		else
+		{
+			var a=document.getElementById("data");
+			a.style.display ="block";
+			var b=document.getElementById("button");
+			b.style.display ="block";
+			var c=document.getElementById("myUL");
+			c.style.display ="block";
+
+			var html = '';
+			html += '<b>To Do List Topic</b><br><br>';
+
+			item.forEach((data) => {
+				if(data.status===true)
+				{
+		  			html += `<li ondblclick="edit(${data.id})"><input type="checkbox" id="${data.id}" onclick="add(${data.id})" />  <lable>  ${data.name}</label><span class="close" onclick="deleteData(${data.id})">\u00D7</span></li>`;
+			  	}
+			  	if(data.status===false)
+			  	{
+		  			html += `<li ondblclick="edit(${data.id})" class="checked"><input checked="" type="checkbox" id="${data.id}" onclick="remove(${data.id})" /> <lable>  ${data.name}</label><span class="close" onclick="deleteData(${data.id})">\u00D7</span></li>`;
+			  	}
+			});
+
+			var ul = document.getElementById("myUL");
+			ul.innerHTML = html;	
+
+			var element = document.getElementById('all');
+			element.classList.add('now');
+			var element2 = document.getElementById('active');
+			element2.classList.remove('now');
+			var element3 = document.getElementById('complete');
+			element3.classList.remove('now');
+		}
+	}
+
+	function active(){
+		var html = '';
+		html += '<b>To Do List Topic</b><br><br>';
+
+		item.forEach((data) => {
+			if(data.status===true)
+			{
+		  		html += `<li ondblclick="edit(${data.id})"><input type="checkbox" id="${data.id}" onclick="add(${data.id})" /> <lable>  ${data.name}</label><span class="close" onclick="deleteData(${data.id})">\u00D7</span></li>`;
+		  	}
+		});
+
+		var ul = document.getElementById("myUL");
+		ul.innerHTML = html;	
+
+		var element = document.getElementById('all');
+		element.classList.remove('now');
+		var element2 = document.getElementById('active');
+		element2.classList.add('now');
+		var element3 = document.getElementById('complete');
+		element3.classList.remove('now');
+	}
+
+	function complete(){
+		var html = '';
+		html += '<b>To Do List Topic</b><br><br>';
+
+		item.forEach((data) => {
+		  	if(data.status===false)
+		  	{
+		  		html += `<li ondblclick="edit(${data.id})" class="checked"><input checked="" type="checkbox" id="${data.id}" onclick="remove(${data.id})" /> <lable>  ${data.name}</label><span class="close" onclick="deleteData(${data.id})">\u00D7</span></li>`;
+		  	}
+		});
+
+		var ul = document.getElementById("myUL");
+		ul.innerHTML = html;	
+
+		var element = document.getElementById('all');
+		element.classList.remove('now');
+		var element2 = document.getElementById('active');
+		element2.classList.remove('now');
+		var element3 = document.getElementById('complete');
+		element3.classList.add('now');
+	}
+
+	const deleteData=(id)=>{
+		if(item.find(c => c.id === id).status === false)
+		{
+			item= item.filter(target =>target.id!==id)
+		}
+		else
+		{	
+			item= item.filter(target =>target.id!==id)
+			decrement();
+		}
+		ActiveButton();
+	}
+
+	function clearAll(){
+		item.forEach((data) => {
+			item= item.filter(target =>target.status!== false)
+			});
+		ActiveButton();
+	}
+
+	function add(id)
+	{
+		var element = document.getElementById(id);
+		element.parentNode.classList.add('checked');
+		document.getElementById(id).setAttribute("onclick", "remove("+id+")");
+		decrement();
+		item.find(c => c.id === id).status = false;
+		ActiveButton();
+	}	
+	function remove(id)
+	{
+		var element = document.getElementById(id);
+		element.parentNode.classList.remove('checked');
+		document.getElementById(id).setAttribute("onclick", "add("+id+")");
+		increment();			
+		item.find(c => c.id === id).status = true;
+		ActiveButton();
+	}
+
+	function newElement(){
+		var text = document.getElementById('myInput').value;
+		if(text=="")
+		{
+
+			var c=document.getElementById("error");
+			c.style.display ="block";
+			document.getElementById("error").innerText="Please Enter Your Task Title...!!!"
+		}
+		else
+		{
+			if(item.length===0)
+			{
+				item.push({ name: text, id: 1, status: true, edit: "n" });
+ 
+			}
+			else
+			{
+				var last= item[item.length - 1];
+			    var lid = last.id;
+				item.push({ name: text, id: lid +1, status: true, edit: "n" });
+			}
+			document.getElementById('myInput').value="";
+			increment();
+
+			var c=document.getElementById("error");
+			c.style.display ="none";
+		}
+		ActiveButton();
+	}
+
+	function edit(id){
+		item.find(c => c.id === id).edit = "y";
+		EditData();
+		document.getElementById("todobody").setAttribute("onclick", "bodyclick("+id+")");
+		document.addEventListener('keyup', function (event) {
+		    if (event.defaultPrevented) {
+		        return;
+		    }
+		    var key = event.key || event.keyCode;
+		
+		    if (key === 'Escape' || key === 'Esc' || key === 27) {
+		        ActiveButton();
+		    }
+		});
+	}
+
+	function EditData(){
+		var html = '';
+		html += '<b>To Do List Topic</b><br><br>';
+
+		item.forEach((data) => {
+			if(data.edit==="y")
+			{
+		  		html += `<input type="text" onmouseenter="removebodyclick(${data.id})" id="editdatainput" value="${data.name}" onkeypress="doit_onkeypress(event,${data.id})"/>`;
+		  	}
+		  	if(data.edit==="n")
+		  	{
+		  		var element = document.getElementById('all');
+		  		if(element.classList.contains('now'))
+		  		{
+			  		if(data.status===true)
+					{
+			  			html += `<li ondblclick="edit(${data.id})"><input type="checkbox" id="${data.id}" onclick="add(${data.id})" /> <lable>  ${data.name}</label><span class="close" onclick="deleteData(${data.id})">\u00D7</span></li>`;
+		  			}
+		  			if(data.status===false)
+			  		{		
+			  			html += `<li ondblclick="edit(${data.id})" class="checked"><input checked="" type="checkbox" id="${data.id}" onclick="remove(${data.id})" /> <lable>  ${data.name}</label><span class="close" onclick="deleteData(${data.id})">\u00D7</span></li>`;
+			  		}
+		  		}
+		  		var element2 = document.getElementById('active');
+		  		if(element2.classList.contains('now'))
+		  		{
+		  			if(data.status===true)
+					{
+			  			html += `<li ondblclick="edit(${data.id})"><input type="checkbox" id="${data.id}" onclick="add(${data.id})" /> <lable>  ${data.name}</label><span class="close" onclick="deleteData(${data.id})">\u00D7</span></li>`;
+		  			}
+		  		}
+		  		var element3 = document.getElementById('complete');
+		  		if(element3.classList.contains('now'))
+		  		{
+		  			if(data.status===false)
+			  		{		
+			  			html += `<li ondblclick="edit(${data.id})" class="checked"><input checked="" type="checkbox" id="${data.id}" onclick="remove(${data.id})" /> <lable>  ${data.name}</label><span class="close" onclick="deleteData(${data.id})">\u00D7</span></li>`;
+			  		}
+		  		}
+		  	}
+		});
+
+		var ul = document.getElementById("myUL");
+		ul.innerHTML = html;
+	}
+
+	function ActiveButton(){
+		var element = document.getElementById('all');
+		if(element.classList.contains('now'))
+		{
+			HideShow();
+		}
+		var element2 = document.getElementById('active');
+		if(element2.classList.contains('now'))
+		{
+			active();
+		}
+		var element3 = document.getElementById('complete');
+		if(element3.classList.contains('now'))
+		{
+			complete();
+		}
+	}
+
+	function doit_onkeypress(event,id){
+		console.log(event.keyCode)
+        if (event.keyCode == 13 || event.which == 13){
+            var editname=document.getElementById("editdatainput").value;
+            item.find(c => c.id === id).edit = "n";
+            item.find(c => c.id === id).name = editname;
+            ActiveButton();
+        }
+    }
+
+    function bodyclick(id){
+        var editname=document.getElementById("editdatainput").value;
+        item.find(c => c.id === id).edit = "n";
+        item.find(c => c.id === id).name = editname;
+        ActiveButton();
+		document.getElementById("todobody").removeAttribute("onclick", "clickedit("+id+")");
+    }
+
+    function removebodyclick(id){
+		document.getElementById("todobody").removeAttribute("onclick", "clickedit("+id+")");
+		document.getElementById("editdatainput").setAttribute("onmouseout", "addbodyclick("+id+")");
+    }
+    function addbodyclick(id){
+		document.getElementById("todobody").setAttribute("onclick", "bodyclick("+id+")");
+    }
+</script>
+</body>
+</html>
